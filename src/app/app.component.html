@@ -461,7 +461,7 @@
         <div class="col-4">
           <select class="form-select" name="moviegenre" id="moviegenre">
             @for (genre of genres; track genre) {
-              <option value="genre">{{genre}}</option>
+              <option value="{{genre.id}}">{{genre.genretype}}</option>
             }
           </select>
         </div>
@@ -646,13 +646,13 @@
         <label class="col-form-label fw-bold" for="roomnumber">Room Number:</label>
       </div>
       <div class="col-4">
-        <input class="form-control" type="text" name="roomnumber" id="roomnumber">
+        <input class="form-control" type="text" name="roomnumber" id="roomnumber" [(ngModel)]="roomNumber">
       </div>
     </div>
   
     <div class="row mb-2">
       <div class="col-3">
-        <button class="btn btn-primary" type="submit">Create Room</button>
+        <button class="btn btn-primary" type="submit" (click)="createRoom();">Create Room</button>
       </div>
     </div>
   </div>
@@ -704,8 +704,8 @@
       </div>
       <div class="col-4">
         <select class="form-select" name="showmovie" id="showmovie">
-          @for (movie of movies; track movie) {
-            <option value="showmovie">{{movie}}</option>
+          @for (movie of moviesData; track movie) {
+            <option value="{{movie.id}}">{{movie.title}}</option>
           }
         </select>
       </div>
@@ -718,7 +718,7 @@
       <div class="col-4">
         <select class="form-select" name="showroom" id="showroom">
           @for (room of rooms; track room) {
-            <option value="showroom">{{room}}</option>
+            <option value="{{room.id}}">{{room.roomNumber}}</option>
           }
         </select>
       </div>

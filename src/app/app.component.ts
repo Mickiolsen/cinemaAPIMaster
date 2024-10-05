@@ -6,7 +6,7 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { isatty } from 'tty';
 import { MoviesComponent } from "./Components/movies/movies/movies.component";
 import { ApiServiceService } from './api-service.service';
-import { Genre, Movie, Room, Show } from '../../models/data-contracts';
+import { Country, Genre, Movie, Room, Seat, Show } from '../../models/data-contracts';
 import { HttpClientModule } from '@angular/common/http';
 import { BlobOptions } from 'buffer';
 import { time } from 'console';
@@ -60,12 +60,12 @@ export class AppComponent {
     }
   ];
 
-  moviesData:any;
-  genres:any;
-  countries:any;
-  rooms:any;
-  shows2:any;
-  seats:any;
+  moviesData:Array<Movie> = [];
+  genres:Array<Genre> = [];
+  countries:Array<Country> = [];
+  rooms:Array<Room> = [];
+  shows2:Array<Show> = [];
+  seats:Array<Seat> = [];
 
   // Oprettelse af tickets
   tickets:Array<any> = new Array();
@@ -88,7 +88,7 @@ export class AppComponent {
   chooseSeats:boolean = false;
   showTickets:boolean = false;
 
-
+  roomNumber:string="";
 
   //Valg af sæde variabler
   ticketCount: number = 0;
@@ -98,54 +98,49 @@ export class AppComponent {
 
   constructor(private modalService: NgbModal, private api:ApiServiceService) {}
 
-ngOnInit() {
-  // Tjek om man er logget ind som admin
-  const isAdminLS  = localStorage.getItem("admin");
+  ngOnInit() {
+    // Tjek om man er logget ind som admin
+    const isAdminLS  = localStorage.getItem("admin");
 
-  if(isAdminLS == "true"){
-    this.isAdmin = true;
+    if(isAdminLS == "true"){
+      this.isAdmin = true;
+    }
+    else{
+      this.isAdmin = false;
+    }
+
+
+    this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
+      this.moviesData = data; 
+      console.log("Movies - ", this.moviesData); 
+    });
+
+    // Henter genres
+this.api.getAll<Genre>("http://localhost:5120/api/Genre").subscribe((data) => {
+  this.genres = data;
+  console.log("Genres - ", this.genres); // Logger genres efter de er hentet
+});
+
+// Henter rooms
+this.api.getAll<Room>("http://localhost:5120/api/Room").subscribe((data) => {
+  this.rooms = data;
+  console.log("Rooms - ", this.rooms); // Logger rooms efter de er hentet
+});
+
+// Henter shows
+this.api.getAll<Show>("http://localhost:5120/api/Show").subscribe((data) => {
+  this.shows2 = data;
+  console.log("Shows - ", this.shows2); // Logger shows efter de er hentet
+});
+
+// Henter seats
+this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
+  this.seats = data;
+  console.log("Seats - ", this.seats); // Logger seats efter de er hentet
+});
+
+
   }
-  else{
-    this.isAdmin = false;
-  }
-
-
-  // For Test af post api kald virker eller ej
-  let params = {
-    roomNumber: "CR5"
-  }
-
-  this.api.create<Room>("http://localhost:5120/api/Room", params).subscribe((data: any)=>
-    console.log(data)
-  );
-  ////////////////////////////////////////////////////////////////////////////////////////////
-
-  this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data)=>
-    this.moviesData = data
-  );
-
-  this.api.getAll<Genre>("http://localhost:5120/api/Genre").subscribe((data)=>
-    this.genres = data
-  );
-
-  this.api.getAll<Room>("http://localhost:5120/api/Room").subscribe((data)=>
-    this.rooms = data
-  );
-
-  this.api.getAll<Show>("http://localhost:5120/api/Show").subscribe((data)=>
-    this.shows2 = data
-  );
-
-  this.api.getAll<Show>("http://localhost:5120/api/Seat").subscribe((data)=>
-    this.seats = data
-  );
-
-  console.log("Movies - ", this.moviesData);
-  console.log("genres - ", this.genres);
-  console.log("rooms - ", this.rooms);
-  console.log("shows - ", this.shows);
-
-}
 
   showMovieClick(movie:any){
     //console.log("movie test", movie);
@@ -247,5 +242,35 @@ ngOnInit() {
       this.resetAll();
     }
   }
+
+  createRoom(){
+    if(this.roomNumber != "" && this.roomNumber != null){
+      let params = {
+        roomNumber: this.roomNumber
+      }
+      this.api.create("http://localhost:5120/api/Room", params).subscribe((data) => {
+        console.log(data);
+
+        if(data){
+          this.roomNumber = ""
+
+          // Henter rooms
+          this.api.getAll<Room>("http://localhost:5120/api/Room").subscribe((data) => {
+            this.rooms = data;
+            console.log("Rooms - ", this.rooms); // Logger rooms efter de er hentet
+          });
+
+          alert("New Room is created");
+        }
+      });
+    }
+    else {
+      console.log("Failed to create Room!");
+      alert("Failed to create Room!");
+    }
+    
+  }
+
+
 
 }
