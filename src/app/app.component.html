@@ -1,8 +1,9 @@
+<!-- Header -->
 <header class="bg-dark text-light py-4" style="top: 0;">
   <div class="container text-center">
     <div class="row pb-0 mb-0">
       <div class="col">
-        <a href="/">
+        <a href="/" (click)="resetAll();">
           <img src="/assets/universalwhite.png" alt="" width="115px">
         </a>
       </div>
@@ -29,19 +30,198 @@
   </div>
 </header>
 
+
+<!-- Show All Movies Menu Button -->
 <!-- Show All Movies Menu Button -->
 @if (showAllMovies) {
-  <div class="container h-100">
-    <div class="row">
-      <div class="col">
-        Show all Moviiiess
+
+  <!-- All Movies Cards -->
+   @if (showAllMovies && showMovie == false && buyTicket == false && isControlPanel == false;) {
+    <section class="now-showing py-5">
+      <div class="container">
+        <h3 class="text-center mb-5">All Movies</h3>
+        <div class="row mb-4">
+          @for (movie of movies; track movie; let idx = $index) {
+            <div class="col-md-4 mb-4">
+              <div class="card h-100 shadow-sm">
+                <img [src]="movie.image" class="card-img-top" alt="{{ movie.title }}" height="500px">
+                <div class="card-body text-center">
+                  <h5 class="card-title">{{ movie.title }}</h5>
+                  <p class="card-text">{{ movie.genre }}</p>
+                  <button class="btn btn-outline-primary mx-1" (click)="showMovieClick(movie);">View Details</button>
+                  <button class="btn btn-outline-dark mx-1" (click)="buyTicketsClick(movie);">Book Tickets</button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        
       </div>
-    </div>
-  </div>
+    </section>
+   }
+
+  <!-- Show Movie details -->
+  @if (showMovie && isControlPanel == false && buyTicket == false){
+    <section class="now-showing pb-3">
+      <div class="container">
+        <div class="row">
+          <div class="col mt-2">
+            <h2 class="text-start mb-5">
+              <button class="btn btn-light text-secondary" (click)="showMovie = false; showAllMovies = true;">
+                <i class="bi bi-arrow-left-short"></i> Show All Movies
+              </button>
+            </h2>
+          </div>
+          <div class="col">
+            <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - {{selectedMovie.genre}}</label>
+          </div>
+         <!-- <div class="col-auto mt-4">
+            <button class="btn btn-light" type="submit"><i class="bi bi-ticket-perforated"></i> Buy Tickets</button>
+          </div> -->
+        </div>
+  
+        <div class="row">
+          <div class="col-auto mb-4">
+            <div class="h-100">
+              <img src={{selectedMovie.image}} alt="" width="360px">
+            </div>
+          </div>
+          <div class="col mb-4">
+            <div class="h-100">
+              <div class="card-body text-center">
+                <label class="fs-4 mt-4" for="movieHeader">{{selectedMovie.description}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Book Tickets and choose seats -->
+  <!-- Book Tickets and choose seats -->
+  <!-- Book Tickets and choose seats -->
+  @if (buyTicket && isControlPanel == false && showMovie == false){
+    <section class="now-showing pb-3 h-100">
+      <div class="container">
+        <div class="row h-100">
+          <div class="col mt-2">
+            <h2 class="text-start mb-5">
+              <button class="btn btn-light text-secondary" (click)="resetAll(); showAllMovies = true;">
+                <i class="bi bi-arrow-left-short"></i> Show All Movies
+              </button>
+            </h2>
+          </div>
+          <div class="col text-center">
+            @if (showTickets) {
+              <label class="fw-bold fs-3 mt-4" for="movieHeader">Your Tickets</label>
+            }
+            @else{
+            <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - Book Tickets</label>
+            }
+          </div>
+          <div class="col mt-4">
+            @if (chooseSeats && showTickets == false) {
+              <button  
+              [class]="!ticketCount || selectedSeats.length <= 0 || selectedSeats.length != ticketCount? 'btn btn-secondary' : 'btn btn-primary'"  
+              type="submit" 
+              [disabled]="!ticketCount || selectedSeats.length <= 0 || selectedSeats.length != ticketCount" 
+              (click)="createTicket();">
+                  Book Tickets
+              </button>
+            }
+          </div>
+        </div>
+  
+        <div class="row mb-5 h-100" [class]="showTickets? 'justify-content-center' : '' ">
+          @if (showTickets == false) {
+            <div class="col-auto mb-4">
+              <div class="h-100">
+                <img src={{selectedMovie.image}} alt="" width="360px">
+              </div>
+            </div>
+          }
+      
+          <!-- Choose date and time for specefic movie -->
+          @if (chooseSeats == false) {
+            <div class="col-2 mb-4">
+              <div class="h-100">
+                <div class="card-body text-center">
+                   <!-- Dropdown here to select date and then another one to select time for movie start -->
+                    <select class="form-control my-4" name="choosedate" id="choosedate" [(ngModel)]="ticketDate">
+                      @for (show of shows; track show) {
+                        <option value="">{{show.date}}</option>
+                      }
+                    </select>
+                    
+                    
+                    <select class="form-control" name="choosetime" id="choosetime" [(ngModel)]="ticketTime">
+                      @for (show of shows; track show) {
+                        <option value="">{{show.time}}</option>
+                      }
+                    </select>
+    
+                    <button class="btn btn-primary my-4" type="submit" (click)="chooseSeats = true;">Choose Seats</button>
+                </div>
+              </div>
+            </div>
+          }
+  
+          @if (chooseSeats && showTickets == false) {  
+            <div class="col-1">
+              <label for="ticketCount" class="form-label">Quantity:</label>
+              <input type="number" class="form-control" id="ticketCount" min="1" max="10" [(ngModel)]="ticketCount" (input)="updateTicketCount(ticketCount)" placeholder="Quantity">
+            </div>
+          
+            <!-- Sædevalg -->
+            <div class="col">
+              <h3>Choose seats for ({{ticketCount}} tickets)</h3>
+              
+              <!-- Vis valgte sæder -->
+              <div> <strong>Seats Chosen:</strong> {{ selectedSeats.join(', ') }} </div>
+              
+              <div class="seats-container d-flex flex-wrap">
+                @for (seat of seats2; track seat) {
+                  <button
+                    class="btn seat-btn m-1"
+                    [class.btn-success]="isSelected(seat)"
+                    [class.btn-light]="!isSelected(seat)"
+                    [disabled]="!isSelected(seat) && selectedSeats.length >= ticketCount"
+                    (click)="toggleSeatSelection(seat)">
+                      {{ seat }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+  
+          @if (showTickets == true) {
+              @for (ticket of tickets; track ticket) {
+                <div class="col-auto text-center">
+                  <div class="bg-ticket h-100 fs-5 p-4" style="border-radius: 20px; box-shadow: 1px 1px 40px 1px;">
+                    <strong>Ticket</strong> <br>
+                    Movie: {{ticket.ticketmovie.title}} <br>
+                    Date: {{ticket.ticketDate}} 22/10/2024 <br>
+                    Time: {{ticket.ticketTime}} 21:15 <br>
+                    Seat: {{ticket.seat}} <br>
+                    Room: {{ticket.room}}
+                  </div>
+                </div>
+              }
+  
+          }
+  
+        </div>
+      </div>
+    </section>
+  }
+
 }
 
+
 <!-- Home page header section with fp buttons (And popular Movies right now) -->
-@if (showMovie == false && this.isControlPanel == false && this.showAllMovies == false;) {  
+<!-- Home page header section with fp buttons (And popular Movies right now) -->
+@if (showMovie == false && this.isControlPanel == false && this.showAllMovies == false && buyTicket == false) {  
     <div class="hero-section text-center d-flex align-items-center justify-content-center">
       <div class="container">
         <h1 class="display-4 text-light fs-1 fw-bold">Welcome to Universal Cinema</h1>
@@ -51,14 +231,13 @@
           </label>
         }
         <p class="lead text-light">Your Premium Cinema Experience</p>
-        <a href="#" class="btn btn-primary btn-lg mx-2">Book Tickets</a>
+        <a href="#" class="btn btn-primary btn-lg mx-2" (click)="showAllMovies = true;">Book Tickets</a>
         @if (isAdmin) {
           <a href="#" class="btn btn-primary btn-lg mx-2" (click)="isControlPanel = true;">Admin Control Panel</a>
         }
       </div>
     </div>
   
-
 <!-- Popular Movies right now -->
   <section class="now-showing py-5">
     <div class="container">
@@ -72,8 +251,8 @@
                   <div class="card-body text-center">
                     <h5 class="card-title">{{ movie.title }}</h5>
                     <p class="card-text">{{ movie.genre }}</p>
-                    <button class="btn btn-outline-primary" (click)="showMovieClick(movie);">View Details</button>
-                    <button class="btn btn-outline-dark" (click)="buyTicketsClick(movie);">Book Tickets</button>
+                    <button class="btn btn-outline-primary mx-1" (click)="showMovieClick(movie);">View Details</button>
+                    <button class="btn btn-outline-dark mx-1" (click)="buyTicketsClick(movie);">Book Tickets</button>
                   </div>
                 </div>
               </div>
@@ -85,8 +264,10 @@
   </section>
 }
 
+
 <!-- Show specific Movie details -->
-@if (showMovie && isControlPanel == false && showAllMovies == false;) {
+<!-- Show specific Movie details -->
+@if (showMovie && isControlPanel == false && showAllMovies == false && buyTicket == false) {
   <section class="now-showing pb-3">
     <div class="container">
       <div class="row">
@@ -123,82 +304,226 @@
   </section>
 }
 
-<!-- Admin Control panel - CRUD -->
-@if (isControlPanel && showMovie == false && showAllMovies == false;) {
-  <div class="container mb-5 pb-2">
-    <div class="row justify-content-center mb-3">
-      <div class="col">
-        <label class="col-form-label fw-bold fs-2" for="createMovie">Create New Movie</label>
-      </div>
-    </div>
 
-    <!--Movie-->
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="moviename">Movie Name:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="moviename" id="moviename">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="moviegenre">Movie Genre:</label>
-      </div>
-      <div class="col-4">
-        <select class="form-select" name="moviegenre" id="moviegenre">
-          @for (genre of genres; track genre) {
-            <option value="genre">{{genre}}</option>
+<!-- Buy Ticket from selected movie -->
+<!-- Buy Ticket from selected movie -->
+@if (buyTicket && isControlPanel == false && showAllMovies == false && showMovie == false;) {
+  <section class="now-showing pb-3 h-100">
+    <div class="container">
+      <div class="row h-100">
+        <div class="col mt-2">
+          <h2 class="text-start mb-5">
+            <button class="btn btn-light text-secondary" (click)="resetAll();">
+              <i class="bi bi-arrow-left-short"></i> Show Popular Movies
+            </button>
+          </h2>
+        </div>
+        <div class="col text-center">
+          @if (showTickets) {
+            <label class="fw-bold fs-3 mt-4" for="movieHeader">Your Tickets</label>
           }
-        </select>
+          @else{
+          <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - Book Tickets</label>
+          }
+        </div>
+        <div class="col mt-4">
+          @if (chooseSeats && showTickets == false) {
+            <button  
+            [class]="!ticketCount || selectedSeats.length <= 0 || selectedSeats.length != ticketCount? 'btn btn-secondary' : 'btn btn-primary'"  
+            type="submit" 
+            [disabled]="!ticketCount || selectedSeats.length <= 0 || selectedSeats.length != ticketCount" 
+            (click)="createTicket();">
+                Book Tickets
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="row mb-5 h-100" [class]="showTickets? 'justify-content-center' : '' ">
+        @if (showTickets == false) {
+          <div class="col-auto mb-4">
+            <div class="h-100">
+              <img src={{selectedMovie.image}} alt="" width="360px">
+            </div>
+          </div>
+        }
+    
+        <!-- Choose date and time for specefic movie -->
+        @if (chooseSeats == false) {
+          <div class="col-2 mb-4">
+            <div class="h-100">
+              <div class="card-body text-center">
+                 <!-- Dropdown here to select date and then another one to select time for movie start -->
+                  <select class="form-control my-4" name="choosedate" id="choosedate" [(ngModel)]="ticketDate">
+                    @for (show of shows; track show) {
+                      <option value="">{{show.date}}</option>
+                    }
+                  </select>
+                  
+                  
+                  <select class="form-control" name="choosetime" id="choosetime" [(ngModel)]="ticketTime">
+                    @for (show of shows; track show) {
+                      <option value="">{{show.time}}</option>
+                    }
+                  </select>
+  
+                  <button class="btn btn-primary my-4" type="submit" (click)="chooseSeats = true;">Choose Seats</button>
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (chooseSeats && showTickets == false) {  
+          <div class="col-1">
+            <label for="ticketCount" class="form-label">Quantity:</label>
+            <input type="number" class="form-control" id="ticketCount" min="1" max="10" [(ngModel)]="ticketCount" (input)="updateTicketCount(ticketCount)" placeholder="Quantity">
+          </div>
+        
+          <!-- Sædevalg -->
+          <div class="col">
+            <h3>Choose seats for ({{ticketCount}} tickets)</h3>
+            
+            <!-- Vis valgte sæder -->
+            <div> <strong>Seats Chosen:</strong> {{ selectedSeats.join(', ') }} </div>
+            
+            <div class="seats-container d-flex flex-wrap">
+              @for (seat of seats2; track seat) {
+                <button
+                  class="btn seat-btn m-1"
+                  [class.btn-success]="isSelected(seat)"
+                  [class.btn-light]="!isSelected(seat)"
+                  [disabled]="!isSelected(seat) && selectedSeats.length >= ticketCount"
+                  (click)="toggleSeatSelection(seat)">
+                    {{ seat }}
+                </button>
+              }
+            </div>
+          </div>
+            
+          
+            <!-- Vis valgte sæder - Gammelt check, men måske skal det bruges?
+              @if (selectedSeats.length === ticketCount) {
+                
+              } -->
+        }
+
+        @if (showTickets == true) {
+            @for (ticket of tickets; track ticket) {
+              <div class="col-auto text-center">
+                <div class="bg-ticket h-100 fs-5 p-4" style="border-radius: 20px; box-shadow: 1px 1px 40px 1px;">
+                  <strong>Ticket</strong> <br>
+                  Movie: {{ticket.ticketmovie.title}} <br>
+                  Date: {{ticket.ticketDate}} 22/10/2024 <br>
+                  Time: {{ticket.ticketTime}} 21:15 <br>
+                  Seat: {{ticket.seat}} <br>
+                  Room: {{ticket.room}}
+                </div>
+              </div>
+            }
+
+        }
+
       </div>
     </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="duration">Duration Minutes:</label>
-      </div>
-      <div class="col-4">  
-        <input class="form-control" type="number" name="duration" id="duration">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="trailer">Trailer Link:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="trailer" id="trailer">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="image">Movie Image:</label>
-      </div>
-      <div class="col-4">
-        <input type="file" name="image" id="image">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="moviedescription">Movie Description:</label>
-      </div>
-      <div class="col-4">
-        <textarea class="form-control" name="moviedescription" id="moviedescription" placeholder="Write movie description here.."></textarea>
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <button class="btn btn-primary" type="submit">Create Movie</button>
-      </div>
-    </div>
+  </section>
+}
 
 
-<!--Genre-->
+<!-- Admin Control panel - CRUD -->
+<!-- Admin Control panel - CRUD -->
+@if (isControlPanel && showMovie == false && showAllMovies == false && buyTicket == false) {
+  <div class="container mb-5 pb-2">
+
+  <!--Movie-->
+  <div class="mb-5">
+      <div class="row justify-content-center mb-3">
+        <div class="col">
+          <label class="col-form-label fw-bold fs-2" for="createMovie">Create New Movie</label>
+        </div>
+        <div class="col mt-3">
+          <button class="btn btn-light text-danger" type="submit" (click)="logoutClick();"> <i class="bi bi-box-arrow-left"></i> Logout</button>
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="moviename">Movie Name:</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="text" name="moviename" id="moviename">
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="moviegenre">Movie Genre:</label>
+        </div>
+        <div class="col-4">
+          <select class="form-select" name="moviegenre" id="moviegenre">
+            @for (genre of genres; track genre) {
+              <option value="genre">{{genre}}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="duration">Duration Minutes:</label>
+        </div>
+        <div class="col-4">  
+          <input class="form-control" type="number" name="duration" id="duration">
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="trailer">Trailer Link:</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="text" name="trailer" id="trailer">
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="image">Movie Image:</label>
+        </div>
+        <div class="col-4">
+          <input type="file" name="image" id="image">
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="ispopular">Movie isPopular</label>
+        </div>
+        <div class="col-auto">
+          <input class="form-check-input" type="checkbox" name="ispopular" id="ispopular">
+        </div>
+        <div class="col-auto">
+          <label class="form-check-label small text-secondary" name="ispopular" id="ispopular">If checked the movie gets shown on the frontpage</label>
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="moviedescription">Movie Description:</label>
+        </div>
+        <div class="col-4">
+          <textarea class="form-control" name="moviedescription" id="moviedescription" placeholder="Write movie description here.."></textarea>
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <button class="btn btn-primary" type="submit">Create Movie</button>
+        </div>
+      </div>
+  </div>
+
+  <!--Genre-->
+  <div class="mb-5">
     <div class="row justify-content-center mb-3">
       <div class="col">
         <label class="col-form-label fw-bold fs-2" for="createGenre">Create Genre</label>
@@ -218,8 +543,10 @@
         <button class="btn btn-primary" type="submit">Create Genre</button>
       </div>
     </div>
+  </div>
 
-<!--Actor-->
+  <!--Actor-->
+  <div class="mb-5">
     <div class="row justify-content-center mb-3">
       <div class="col">
         <label class="col-form-label fw-bold fs-2" for="createActor">Create Actor</label>
@@ -271,15 +598,16 @@
         <button class="btn btn-primary" type="submit">Create Actor</button>
       </div>
     </div>
+  </div>
 
-
-    <!--Country-->
+  <!--Country-->
+  <div class="mb-5">
     <div class="row justify-content-center mb-3">
       <div class="col">
         <label class="col-form-label fw-bold fs-2" for="createcountry">Create Country</label>
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="countryname">Country Name:</label>
@@ -288,7 +616,7 @@
         <input class="form-control" type="text" name="countryname" id="countryname">
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="countrycode">Country Code:</label>
@@ -297,21 +625,22 @@
         <input class="form-control" type="text" name="countrycode" id="countrycode">
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <button class="btn btn-primary" type="submit">Create Country</button>
       </div>
     </div>
+  </div>
 
-
-    <!--Room-->
+  <!--Room-->
+  <div class="mb-5">
     <div class="row justify-content-center mb-3">
       <div class="col">
         <label class="col-form-label fw-bold fs-2" for="createroom">Create Room</label>
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="roomnumber">Room Number:</label>
@@ -320,21 +649,22 @@
         <input class="form-control" type="text" name="roomnumber" id="roomnumber">
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <button class="btn btn-primary" type="submit">Create Room</button>
       </div>
     </div>
+  </div>
 
-
-    <!--Seat-->
+  <!--Seat-->
+  <div class="mb-5">
     <div class="row justify-content-center mb-3">
       <div class="col">
         <label class="col-form-label fw-bold fs-2" for="createroom">Create Seat</label>
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="seatrow">Seat Row:</label>
@@ -343,7 +673,7 @@
         <input class="form-control" type="text" name="seatrow" id="seatrow">
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="seatnumber">Seat Number:</label>
@@ -352,21 +682,22 @@
         <input class="form-control" type="number" name="seatnumber" id="seatnumber">
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <button class="btn btn-primary" type="submit">Create Seat</button>
       </div>
     </div>
+  </div>
 
-
-    <!--Show-->
+  <!--Show-->
+  <div class="mb-5">
     <div class="row justify-content-center mb-3">
       <div class="col">
         <label class="col-form-label fw-bold fs-2" for="createshow">Create Show</label>
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="showmovie">Show Movie</label>
@@ -379,7 +710,7 @@
         </select>
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="showroom">Show Room</label>
@@ -392,7 +723,7 @@
         </select>
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="showdate">Show Date</label>
@@ -401,24 +732,34 @@
         <input class="form-control" type="date" name="showdate" id="showdate">
       </div>
     </div>
-
+  
     <div class="row mb-2">
       <div class="col-3">
         <label class="col-form-label fw-bold" for="showtime">Show Starttime</label>
       </div>
       <div class="col-4">
-        <input class="form-control" type="date" name="showtime" id="showtime">
+        <input class="form-control" type="time" name="showtime" id="showtime">
       </div>
     </div>
 
     <div class="row mb-2">
       <div class="col-3">
+        <label class="col-form-label fw-bold" for="showprice">Show Price</label>
+      </div>
+      <div class="col-4">
+        <input class="form-control" type="number" name="showprice" id="showprice">
+      </div>
+    </div>
+  
+    <div class="row mb-2">
+      <div class="col-3">
         <button class="btn btn-primary" type="submit">Create Show</button>
       </div>
     </div>
+  </div>
 
     <!--Ticket-->
-    <div class="row justify-content-center mb-3">
+  <!--  <div class="row justify-content-center mb-5">
       <div class="col">
         <label class="col-form-label fw-bold fs-2" for="createticket">Create Ticket</label>
       </div>
@@ -426,7 +767,7 @@
 
     <div class="row mb-2">
       <div class="col-3">
-        <label class="col-form-label fw-bold" for="showtime">Show Starttime</label>
+        <label class="col-form-label fw-bold" for="showtime">Show Starttime</label>                                                                                                                                                                   
       </div>
       <div class="col-4">
         <input class="form-control" type="date" name="showtime" id="showtime">
@@ -437,13 +778,14 @@
       <div class="col-3">
         <button class="btn btn-primary" type="submit">Create Ticket</button>
       </div>
-    </div>
+    </div> -->
 
   </div>
 }
 
 
 
+<!-- Footer -->
 <footer class="footer bg-dark text-light py-4">
   <div class="container text-center">
     <ul class="list-inline">

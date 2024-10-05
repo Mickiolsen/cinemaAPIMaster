@@ -10,7 +10,6 @@ export class ApiServiceService {
 
   constructor(private http:HttpClient) { }
 
-
  // static async getMovieById(id:number | null | undefined = 0): Promise<Movie | null > {
  //   try {
  //     if(id == undefined || id == null || id == 0){
@@ -93,6 +92,8 @@ export class ApiServiceService {
 
 
   // Get All
+  
+
   getAll<T>(url: string):Observable<T[]>{
     return this.http.get<T[]>(url);
   }
@@ -103,7 +104,12 @@ export class ApiServiceService {
   }
 
   // Post
-
+  create<T>(url: string, params:any):Observable<T>{
+    return this.http.post<T>(url, params);
+  }
 
   // Delete
+  delete<T>(url: string):Observable<T>{
+    return this.http.delete<T>(url);
+  }
 }

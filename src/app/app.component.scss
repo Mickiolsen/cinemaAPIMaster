@@ -103,3 +103,20 @@ $text-color-light: #f8f9fa;
     }
   }
 }
+
+
+.seats-container {
+  justify-content: center;
+  max-width: auto;
+  max-height: 200px;
+}
+
+.seat-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+}
+
+.bg-ticket {
+  background-color: rgb(212, 207, 195);
+}
