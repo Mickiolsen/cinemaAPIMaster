@@ -6,10 +6,12 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { isatty } from 'tty';
 import { MoviesComponent } from "./Components/movies/movies/movies.component";
 import { ApiServiceService } from './api-service.service';
-import { Country, Genre, Movie, Room, Seat, Show } from '../../models/data-contracts';
+import { Actor, Country, Genre, Movie, Room, Seat, Show } from '../../models/data-contracts';
 import { HttpClientModule } from '@angular/common/http';
 import { BlobOptions } from 'buffer';
 import { time } from 'console';
+import { elementAt, timeInterval } from 'rxjs';
+import { Time } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +22,7 @@ import { time } from 'console';
 })
 export class AppComponent {
   title = 'cinemaAPI';
-  movies = [
+  movies2 = [
     {
       title: 'Movie 1',
       genre: 'Action',
@@ -47,7 +49,7 @@ export class AppComponent {
     }
   ];
 
-  shows = [
+  shows2 = [
     {
       room: 'CR1',
       date: '26/09',
@@ -60,12 +62,13 @@ export class AppComponent {
     }
   ];
 
-  moviesData:Array<Movie> = [];
+  movies:Array<Movie> = [];
   genres:Array<Genre> = [];
   countries:Array<Country> = [];
   rooms:Array<Room> = [];
-  shows2:Array<Show> = [];
+  shows:Array<Show> = [];
   seats:Array<Seat> = [];
+  actors:Array<Actor> = [];
 
   // Oprettelse af tickets
   tickets:Array<any> = new Array();
@@ -89,6 +92,27 @@ export class AppComponent {
   showTickets:boolean = false;
 
   roomNumber:string="";
+  genreName:string="";
+  countryName:string="";
+  countryCode:string="";
+  seatNumber:number=0;
+  seatRow:string="";
+  movieName:string="";
+  movieDuration:number=0;
+  movieTrailer:string="";
+  moviePopular:boolean=false;
+  movieDescription:string="";
+  movieImage:any;
+  movieGenreId:number=0;
+  showMovieId:number=0;
+  showRoomId:number=0;
+  showDate:Date=new Date();
+  showTime:Time= {hours:0o0, minutes: 0o0};
+  showPrice:number = 0;
+  actorFirstName:string="";
+  actorLastName:string="";
+  actorAge:number=0;
+  actorCountryId:number=0;
 
   //Valg af sæde variabler
   ticketCount: number = 0;
@@ -175,7 +199,6 @@ this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
     }
   }
 
-
   // Sæde valg funktioner
   // Opdater antallet af billetter
   updateTicketCount(count: number) {
@@ -196,8 +219,7 @@ this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
   isSelected(seatNumber: number): boolean {
     return this.selectedSeats.includes(seatNumber);
   }
-
-   // Sæde valg funktioner END
+  // Sæde valg funktioner END
 
 
   createTicket(){
@@ -243,6 +265,8 @@ this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
     }
   }
 
+
+  //Crud Create Funktioner 
   createRoom(){
     if(this.roomNumber != "" && this.roomNumber != null){
       let params = {
@@ -254,7 +278,7 @@ this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
         if(data){
           this.roomNumber = ""
 
-          // Henter rooms
+          // Henter rooms igen
           this.api.getAll<Room>("http://localhost:5120/api/Room").subscribe((data) => {
             this.rooms = data;
             console.log("Rooms - ", this.rooms); // Logger rooms efter de er hentet
@@ -271,6 +295,191 @@ this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
     
   }
 
+  createGenre(){
+    if(this.genreName != "" && this.genreName != null){
+      let params = {
+        GenreType: this.genreName
+      }
+      this.api.create("http://localhost:5120/api/Genre", params).subscribe((data) => {
+        console.log(data);
 
+        if(data){
+          this.genreName = ""
 
+          this.api.getAll<Genre>("http://localhost:5120/api/Genre").subscribe((data) => {
+            this.genres = data;
+            console.log("Genres - ", this.genres);
+          });
+
+          alert("New Genre is created");
+          }
+      });
+    }
+    else{
+      alert("Failed to create Genre!");
+    }
+  }
+
+  createCountry(){
+    if(this.countryName != "" && this.countryName != null){
+      let params = {
+        CountryName: this.countryName,
+        CountryCode: this.countryCode
+      }
+
+      this.api.create("http://localhost:5120/api/Country", params).subscribe((data) => {
+        console.log(data);
+
+        if(data){
+          this.countryName = ""
+          this.countryCode = ""
+
+          this.api.getAll<Country>("http://localhost:5120/api/Country").subscribe((data) => {
+            this.countries = data;
+            console.log("Countries - ", this.countries);
+          });
+
+          alert("New Country is created");
+        }
+      });
+    }
+    else {
+      alert("Failed to create Country!");
+    }
+  }
+
+  createSeat(){
+    if(this.seatNumber != 0 && this.seatNumber != null && this.seatRow != "" && this.seatRow != null){
+      let params = {
+        SeatNumber:this.seatNumber,
+        SeatRow:this.seatRow
+      }
+
+        this.api.create("http://localhost:5120/api/Seat", params).subscribe((data) => {
+          console.log(data);
+
+          if(data){
+            this.seatNumber = 0;
+            this.seatRow = "";
+
+            this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
+              this.seats = data;
+              console.log("Seats - ", this.seats);
+            });
+
+            alert("New Seat is created");
+            }
+        });
+      }
+      else{
+        alert("Failed to create Seat!");
+      }
+  }
+
+  createMovie(){
+    if(this.movieName != "" && this.movieName != null && this.movieDuration != 0 && this.movieDuration != null && this.movieDescription != "" && this.movieDescription != null && this.movieImage && this.movieImage != null && this.movieGenreId != 0 && this.movieGenreId != null){
+      let params = {
+        Title: this.movieName,
+        DurationMinutes:this.movieDuration,
+        TrailerLink:this.movieTrailer,
+        IsPopular:this.moviePopular,
+        Description:this.movieDescription,
+        Image:this.movieImage,
+        GenreId:this.movieGenreId
+      }
+
+        this.api.create("http://localhost:5120/api/Movie", params).subscribe((data) => {
+          console.log(data);
+
+          if(data){
+            this.movieName = "";
+            this.movieDuration = 0;
+            this.movieTrailer = "";
+            this.moviePopular = false;
+            this.movieDescription = "";
+            this.movieImage = "";
+            this.movieGenreId = 0;
+
+            this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
+              this.movies = data;
+              console.log("Movies - ", this.movies);
+            });
+
+            alert("New Movie is created");
+            }
+        });
+      }
+      else{
+        alert("Failed to create Movie!");
+     }
+  }
+
+  createShow(){
+    if(this.showMovieId != 0 && this.showMovieId != null && this.showRoomId != 0 && this.showRoomId != null && this.showDate && this.showTime && this.showPrice != 0 && this.showPrice != null){
+      let params = {
+        RoomId:this.showRoomId,
+        MovieId:this.showMovieId,
+        Date:this.showDate,
+        Time:this.showTime,
+        Price:this.showPrice
+      }
+
+      this.api.create("http://localhost:5120/api/Show", params).subscribe((data) => {
+        console.log(data);
+
+        if(data){
+          this.showRoomId = 0;
+          this.showMovieId = 0;
+          this.showDate = new Date();
+          this.showTime = {hours:0o0, minutes: 0o0};
+          this.showPrice = 0;
+
+          this.api.getAll<Show>("http://localhost:5120/api/Show").subscribe((data) => {
+            this.shows = data;
+            console.log("Shows - ", this.shows);
+          });
+
+          alert("New Show is created");
+          }
+      });
+    }
+    else{
+      alert("Failed to create Show!");
+    }
+  }
+
+  createActor(){
+    if(this.actorFirstName != "" && this.actorFirstName != null && this.actorLastName != "" && this.actorLastName != null && this.actorAge != 0 && this.actorAge != null && this.actorCountryId != 0 && this.actorCountryId != null){
+      let params = {
+        FirstName: this.actorFirstName,
+        LastName: this.actorLastName,
+        Age: this.actorAge,
+        CountryId: this.actorCountryId
+      }
+
+      this.api.create("http://localhost:5120/api/Actor", params).subscribe((data) => {
+        console.log(data);
+
+        if(data){
+          this.actorFirstName = "";
+          this.actorLastName = "";
+          this.actorAge = 0;
+          this.actorCountryId = 0;
+
+          this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
+            this.actors = data;
+            console.log("Actors - ", this.actors);
+          });
+
+          alert("New Actor is created");
+          }
+      });
+    }
+    else{
+      alert("Failed to create Actor!");
+    }
+
+  }
+  //Crud Create Funktioner END
+  
 }

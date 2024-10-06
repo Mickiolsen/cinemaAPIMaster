@@ -244,13 +244,13 @@
       <h3 class="text-center mb-5">Popular Movies Right Now</h3>
       <div class="row">
         @for (movie of movies; track movie; let idx = $index) {
-          @if (idx <= 2) {
+          @if (movie.ispopular) {
               <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
                   <img [src]="movie.image" class="card-img-top" alt="{{ movie.title }}" height="500px">
                   <div class="card-body text-center">
                     <h5 class="card-title">{{ movie.title }}</h5>
-                    <p class="card-text">{{ movie.genre }}</p>
+                    <p class="card-text">{{ movie.genreid }}</p>
                     <button class="btn btn-outline-primary mx-1" (click)="showMovieClick(movie);">View Details</button>
                     <button class="btn btn-outline-dark mx-1" (click)="buyTicketsClick(movie);">Book Tickets</button>
                   </div>
@@ -279,7 +279,7 @@
           </h2>
         </div>
         <div class="col">
-          <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - {{selectedMovie.genre}}</label>
+          <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - {{selectedMovie.genreid}}</label>
         </div>
        <!-- <div class="col-auto mt-4">
           <button class="btn btn-light" type="submit"><i class="bi bi-ticket-perforated"></i> Buy Tickets</button>
@@ -296,6 +296,13 @@
           <div class="h-100">
             <div class="card-body text-center">
               <label class="fs-4 mt-4" for="movieHeader">{{selectedMovie.description}}</label>
+            </div>
+          </div>
+        </div>
+        <div class="col mb-4">
+          <div class="h-100">
+            <div class="card-body text-center">
+              <label class="fs-4 mt-4" for="movieHeader">{{selectedMovie.actors}}</label>
             </div>
           </div>
         </div>
@@ -434,34 +441,160 @@
 @if (isControlPanel && showMovie == false && showAllMovies == false && buyTicket == false) {
   <div class="container mb-5 pb-2">
 
-  <!--Movie-->
-  <div class="mb-5">
+    <!--Movie-->
+    <div class="mb-5">
+        <div class="row justify-content-center mb-3">
+          <div class="col">
+            <label class="col-form-label fw-bold fs-2" for="createMovie">Create New Movie</label>
+          </div>
+          <div class="col mt-3">
+            <button class="btn btn-light text-danger" type="submit" (click)="logoutClick();"> <i class="bi bi-box-arrow-left"></i> Logout</button>
+          </div>
+        </div>
+      
+        <div class="row mb-2">
+          <div class="col-3">
+            <label class="col-form-label fw-bold" for="moviename">Movie Name:</label>
+          </div>
+          <div class="col-4">
+            <input class="form-control" type="text" name="moviename" id="moviename" [(ngModel)]="movieName">
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-3">
+            <label class="col-form-label fw-bold" for="moviegenre">Movie Genre:</label>
+          </div>
+          <div class="col-4">
+            <select class="form-select" name="moviegenre" id="moviegenre" [(ngModel)]="movieGenreId">
+              @for (genre of genres; track genre) {
+                <option value="{{genre.id}}">{{genre.genretype}}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-3">
+            <label class="col-form-label fw-bold" for="duration">Duration Minutes:</label>
+          </div>
+          <div class="col-4">  
+            <input class="form-control" type="number" name="duration" id="duration" [(ngModel)]="movieDuration">
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-3">
+            <label class="col-form-label fw-bold" for="trailer">Trailer Link:</label>
+          </div>
+          <div class="col-4">
+            <input class="form-control" type="text" name="trailer" id="trailer" [(ngModel)]="movieTrailer">
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-3">
+            <label class="col-form-label fw-bold" for="image">Movie Image:</label>
+          </div>
+          <div class="col-4">
+            <input type="file" name="image" id="image" [(ngModel)]="movieImage">
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-3">
+            <label class="col-form-label fw-bold" for="ispopular">Movie isPopular</label>
+          </div>
+          <div class="col-auto">
+            <input class="form-check-input" type="checkbox" name="ispopular" id="ispopular" [(ngModel)]="moviePopular">
+          </div>
+          <div class="col-auto">
+            <label class="form-check-label small text-secondary" name="ispopular" id="ispopular">If checked the movie gets shown on the frontpage</label>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-3">
+            <label class="col-form-label fw-bold" for="moviedescription">Movie Description:</label>
+          </div>
+          <div class="col-4">
+            <textarea class="form-control" name="moviedescription" id="moviedescription" placeholder="Write movie description here.." [(ngModel)]="movieDescription"></textarea>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-3">
+            <button class="btn btn-primary" type="submit" (click)="createMovie()">Create Movie</button>
+          </div>
+        </div>
+    </div>
+
+    <!--Genre-->
+    <div class="mb-5">
       <div class="row justify-content-center mb-3">
         <div class="col">
-          <label class="col-form-label fw-bold fs-2" for="createMovie">Create New Movie</label>
-        </div>
-        <div class="col mt-3">
-          <button class="btn btn-light text-danger" type="submit" (click)="logoutClick();"> <i class="bi bi-box-arrow-left"></i> Logout</button>
+          <label class="col-form-label fw-bold fs-2" for="createGenre">Create Genre</label>
         </div>
       </div>
-    
       <div class="row mb-2">
         <div class="col-3">
-          <label class="col-form-label fw-bold" for="moviename">Movie Name:</label>
+          <label class="col-form-label fw-bold" for="genrename">Genre Name:</label>
         </div>
         <div class="col-4">
-          <input class="form-control" type="text" name="moviename" id="moviename">
+          <input class="form-control" type="text" name="genrename" id="genrename" [(ngModel)]="genreName">
         </div>
       </div>
 
       <div class="row mb-2">
         <div class="col-3">
-          <label class="col-form-label fw-bold" for="moviegenre">Movie Genre:</label>
+          <button class="btn btn-primary" type="submit" (click)="createGenre();">Create Genre</button>
+        </div>
+      </div>
+    </div>
+
+    <!--Actor-->
+    <div class="mb-5">
+      <div class="row justify-content-center mb-3">
+        <div class="col">
+          <label class="col-form-label fw-bold fs-2" for="createActor">Create Actor</label>
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="actorfirstname">Actor Firstname:</label>
         </div>
         <div class="col-4">
-          <select class="form-select" name="moviegenre" id="moviegenre">
-            @for (genre of genres; track genre) {
-              <option value="{{genre.id}}">{{genre.genretype}}</option>
+          <input class="form-control" type="text" name="actorfirstname" id="actorfirstname" [(ngModel)]="actorFirstName">
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="actorlastname">Actor Lastname:</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="text" name="actorlastname" id="actorlastname" [(ngModel)]="actorLastName">
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="actorage">Actor Age:</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="number" name="actorage" id="actorage" [(ngModel)]="actorAge">
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="actorcountry">Actor Country:</label>
+        </div>
+        <div class="col-4">
+          <select class="form-select" name="actorcountry" id="actorcountry" [(ngModel)]="actorCountryId">
+            @for (country of countries; track country) {
+              <option value="{{country.id}}">{{country.countryName}}</option>
             }
           </select>
         </div>
@@ -469,316 +602,168 @@
 
       <div class="row mb-2">
         <div class="col-3">
-          <label class="col-form-label fw-bold" for="duration">Duration Minutes:</label>
-        </div>
-        <div class="col-4">  
-          <input class="form-control" type="number" name="duration" id="duration">
+          <button class="btn btn-primary" type="submit">Create Actor</button>
         </div>
       </div>
+    </div>
 
+    <!--Country-->
+    <div class="mb-5">
+      <div class="row justify-content-center mb-3">
+        <div class="col">
+          <label class="col-form-label fw-bold fs-2" for="createcountry">Create Country</label>
+        </div>
+      </div>
+    
       <div class="row mb-2">
         <div class="col-3">
-          <label class="col-form-label fw-bold" for="trailer">Trailer Link:</label>
+          <label class="col-form-label fw-bold" for="countryname">Country Name:</label>
         </div>
         <div class="col-4">
-          <input class="form-control" type="text" name="trailer" id="trailer">
+          <input class="form-control" type="text" name="countryname" id="countryname" [(ngModel)]="countryName">
         </div>
       </div>
-
+    
       <div class="row mb-2">
         <div class="col-3">
-          <label class="col-form-label fw-bold" for="image">Movie Image:</label>
+          <label class="col-form-label fw-bold" for="countrycode">Country Code:</label>
         </div>
         <div class="col-4">
-          <input type="file" name="image" id="image">
+          <input class="form-control" type="text" name="countrycode" id="countrycode" [(ngModel)]="countryCode">
         </div>
       </div>
-
+    
       <div class="row mb-2">
         <div class="col-3">
-          <label class="col-form-label fw-bold" for="ispopular">Movie isPopular</label>
-        </div>
-        <div class="col-auto">
-          <input class="form-check-input" type="checkbox" name="ispopular" id="ispopular">
-        </div>
-        <div class="col-auto">
-          <label class="form-check-label small text-secondary" name="ispopular" id="ispopular">If checked the movie gets shown on the frontpage</label>
+          <button class="btn btn-primary" type="submit" (click)="createCountry()">Create Country</button>
         </div>
       </div>
+    </div>
 
+    <!--Room-->
+    <div class="mb-5">
+      <div class="row justify-content-center mb-3">
+        <div class="col">
+          <label class="col-form-label fw-bold fs-2" for="createroom">Create Room</label>
+        </div>
+      </div>
+    
       <div class="row mb-2">
         <div class="col-3">
-          <label class="col-form-label fw-bold" for="moviedescription">Movie Description:</label>
+          <label class="col-form-label fw-bold" for="roomnumber">Room Number:</label>
         </div>
         <div class="col-4">
-          <textarea class="form-control" name="moviedescription" id="moviedescription" placeholder="Write movie description here.."></textarea>
+          <input class="form-control" type="text" name="roomnumber" id="roomnumber" [(ngModel)]="roomNumber">
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <button class="btn btn-primary" type="submit" (click)="createRoom();">Create Room</button>
+        </div>
+      </div>
+    </div>
+
+    <!--Seat-->
+    <div class="mb-5">
+      <div class="row justify-content-center mb-3">
+        <div class="col">
+          <label class="col-form-label fw-bold fs-2" for="createroom">Create Seat</label>
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="seatrow">Seat Row:</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="text" name="seatrow" id="seatrow" [(ngModel)]="seatRow">
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="seatnumber">Seat Number:</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="number" name="seatnumber" id="seatnumber" [(ngModel)]="seatNumber">
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <button class="btn btn-primary" type="submit" (click)="createSeat();">Create Seat</button>
+        </div>
+      </div>
+    </div>
+
+    <!--Show-->
+    <div class="mb-5">
+      <div class="row justify-content-center mb-3">
+        <div class="col">
+          <label class="col-form-label fw-bold fs-2" for="createshow">Create Show</label>
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="showmovie">Show Movie</label>
+        </div>
+        <div class="col-4">
+          <select class="form-select" name="showmovie" id="showmovie" [(ngModel)]="showMovieId">
+            @for (movie of movies; track movie) {
+              <option value="{{movie.id}}">{{movie.title}}</option>
+            }
+          </select>
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="showroom">Show Room</label>
+        </div>
+        <div class="col-4">
+          <select class="form-select" name="showroom" id="showroom" [(ngModel)]="showRoomId">
+            @for (room of rooms; track room) {
+              <option value="{{room.id}}">{{room.roomNumber}}</option>
+            }
+          </select>
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="showdate">Show Date</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="date" name="showdate" id="showdate" [(ngModel)]="showDate">
+        </div>
+      </div>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="showtime">Show Starttime</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="time" name="showtime" id="showtime" [(ngModel)]="showTime">
         </div>
       </div>
 
       <div class="row mb-2">
         <div class="col-3">
-          <button class="btn btn-primary" type="submit">Create Movie</button>
+          <label class="col-form-label fw-bold" for="showprice">Show Price</label>
+        </div>
+        <div class="col-4">
+          <input class="form-control" type="number" name="showprice" id="showprice" [(ngModel)]="showPrice">
         </div>
       </div>
-  </div>
-
-  <!--Genre-->
-  <div class="mb-5">
-    <div class="row justify-content-center mb-3">
-      <div class="col">
-        <label class="col-form-label fw-bold fs-2" for="createGenre">Create Genre</label>
+    
+      <div class="row mb-2">
+        <div class="col-3">
+          <button class="btn btn-primary" type="submit" (click)="createShow();">Create Show</button>
+        </div>
       </div>
     </div>
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="genrename">Genre Name:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="genrename" id="genrename">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <button class="btn btn-primary" type="submit">Create Genre</button>
-      </div>
-    </div>
-  </div>
-
-  <!--Actor-->
-  <div class="mb-5">
-    <div class="row justify-content-center mb-3">
-      <div class="col">
-        <label class="col-form-label fw-bold fs-2" for="createActor">Create Actor</label>
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="actorfirstname">Actor Firstname:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="actorfirstname" id="actorfirstname">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="actorlastname">Actor Lastname:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="actorlastname" id="actorlastname">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="actorage">Actor Age:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="number" name="actorage" id="actorage">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="actorcountry">Actor Country:</label>
-      </div>
-      <div class="col-4">
-        <select class="form-select" name="actorcountry" id="actorcountry">
-          @for (country of countries; track country) {
-            <option value="country">{{country}}</option>
-          }
-        </select>
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <button class="btn btn-primary" type="submit">Create Actor</button>
-      </div>
-    </div>
-  </div>
-
-  <!--Country-->
-  <div class="mb-5">
-    <div class="row justify-content-center mb-3">
-      <div class="col">
-        <label class="col-form-label fw-bold fs-2" for="createcountry">Create Country</label>
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="countryname">Country Name:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="countryname" id="countryname">
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="countrycode">Country Code:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="countrycode" id="countrycode">
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <button class="btn btn-primary" type="submit">Create Country</button>
-      </div>
-    </div>
-  </div>
-
-  <!--Room-->
-  <div class="mb-5">
-    <div class="row justify-content-center mb-3">
-      <div class="col">
-        <label class="col-form-label fw-bold fs-2" for="createroom">Create Room</label>
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="roomnumber">Room Number:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="roomnumber" id="roomnumber" [(ngModel)]="roomNumber">
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <button class="btn btn-primary" type="submit" (click)="createRoom();">Create Room</button>
-      </div>
-    </div>
-  </div>
-
-  <!--Seat-->
-  <div class="mb-5">
-    <div class="row justify-content-center mb-3">
-      <div class="col">
-        <label class="col-form-label fw-bold fs-2" for="createroom">Create Seat</label>
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="seatrow">Seat Row:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="text" name="seatrow" id="seatrow">
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="seatnumber">Seat Number:</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="number" name="seatnumber" id="seatnumber">
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <button class="btn btn-primary" type="submit">Create Seat</button>
-      </div>
-    </div>
-  </div>
-
-  <!--Show-->
-  <div class="mb-5">
-    <div class="row justify-content-center mb-3">
-      <div class="col">
-        <label class="col-form-label fw-bold fs-2" for="createshow">Create Show</label>
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="showmovie">Show Movie</label>
-      </div>
-      <div class="col-4">
-        <select class="form-select" name="showmovie" id="showmovie">
-          @for (movie of moviesData; track movie) {
-            <option value="{{movie.id}}">{{movie.title}}</option>
-          }
-        </select>
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="showroom">Show Room</label>
-      </div>
-      <div class="col-4">
-        <select class="form-select" name="showroom" id="showroom">
-          @for (room of rooms; track room) {
-            <option value="{{room.id}}">{{room.roomNumber}}</option>
-          }
-        </select>
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="showdate">Show Date</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="date" name="showdate" id="showdate">
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="showtime">Show Starttime</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="time" name="showtime" id="showtime">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="showprice">Show Price</label>
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="number" name="showprice" id="showprice">
-      </div>
-    </div>
-  
-    <div class="row mb-2">
-      <div class="col-3">
-        <button class="btn btn-primary" type="submit">Create Show</button>
-      </div>
-    </div>
-  </div>
-
-    <!--Ticket-->
-  <!--  <div class="row justify-content-center mb-5">
-      <div class="col">
-        <label class="col-form-label fw-bold fs-2" for="createticket">Create Ticket</label>
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <label class="col-form-label fw-bold" for="showtime">Show Starttime</label>                                                                                                                                                                   
-      </div>
-      <div class="col-4">
-        <input class="form-control" type="date" name="showtime" id="showtime">
-      </div>
-    </div>
-
-    <div class="row mb-2">
-      <div class="col-3">
-        <button class="btn btn-primary" type="submit">Create Ticket</button>
-      </div>
-    </div> -->
 
   </div>
 }
