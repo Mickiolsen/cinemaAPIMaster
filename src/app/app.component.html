@@ -44,10 +44,12 @@
           @for (movie of movies; track movie; let idx = $index) {
             <div class="col-md-4 mb-4">
               <div class="card h-100 shadow-sm">
-                <img [src]="movie.image" class="card-img-top" alt="{{ movie.title }}" height="500px">
+                @if(movie.image){
+                  <img [src]="'http://localhost:5120' + movie.image" class="card-img-top" alt="{{ movie.title }}" height="500px">
+                }
                 <div class="card-body text-center">
                   <h5 class="card-title">{{ movie.title }}</h5>
-                  <p class="card-text">{{ movie.genre }}</p>
+                  <p class="card-text">{{ movie.genreId }}</p>
                   <button class="btn btn-outline-primary mx-1" (click)="showMovieClick(movie);">View Details</button>
                   <button class="btn btn-outline-dark mx-1" (click)="buyTicketsClick(movie);">Book Tickets</button>
                 </div>
@@ -83,7 +85,9 @@
         <div class="row">
           <div class="col-auto mb-4">
             <div class="h-100">
-              <img src={{selectedMovie.image}} alt="" width="360px">
+              @if (selectedMovie.image) {
+                <img [src]="'http://localhost:5120' + selectedMovie.image" class="card-img-top" alt="{{ selectedMovie.title }}" height="500px" style="max-width: 400px !important;">
+              }
             </div>
           </div>
           <div class="col mb-4">
@@ -98,8 +102,6 @@
     </section>
   }
 
-  <!-- Book Tickets and choose seats -->
-  <!-- Book Tickets and choose seats -->
   <!-- Book Tickets and choose seats -->
   @if (buyTicket && isControlPanel == false && showMovie == false){
     <section class="now-showing pb-3 h-100">
@@ -137,7 +139,9 @@
           @if (showTickets == false) {
             <div class="col-auto mb-4">
               <div class="h-100">
-                <img src={{selectedMovie.image}} alt="" width="360px">
+                @if(selectedMovie.image){
+                  <img [src]="'http://localhost:5120' + selectedMovie.image" class="card-img-top" alt="{{ selectedMovie.title }}" height="500px" style="max-width: 400px !important;">
+                }
               </div>
             </div>
           }
@@ -181,13 +185,13 @@
               <div> <strong>Seats Chosen:</strong> {{ selectedSeats.join(', ') }} </div>
               
               <div class="seats-container d-flex flex-wrap">
-                @for (seat of seats2; track seat) {
+                @for (seat of seats; track seat) {
                   <button
                     class="btn seat-btn m-1"
-                    [class.btn-success]="isSelected(seat)"
-                    [class.btn-light]="!isSelected(seat)"
-                    [disabled]="!isSelected(seat) && selectedSeats.length >= ticketCount"
-                    (click)="toggleSeatSelection(seat)">
+                    [class.btn-success]="isSelected(seat.seatNumber)"
+                    [class.btn-light]="!isSelected(seat.seatNumber)"
+                    [disabled]="!isSelected(seat.seatNumber) && selectedSeats.length >= ticketCount"
+                    (click)="toggleSeatSelection(seat.seatNumber)">
                       {{ seat }}
                   </button>
                 }
@@ -218,7 +222,6 @@
 
 }
 
-
 <!-- Home page header section with fp buttons (And popular Movies right now) -->
 <!-- Home page header section with fp buttons (And popular Movies right now) -->
 @if (showMovie == false && this.isControlPanel == false && this.showAllMovies == false && buyTicket == false) {  
@@ -244,13 +247,15 @@
       <h3 class="text-center mb-5">Popular Movies Right Now</h3>
       <div class="row">
         @for (movie of movies; track movie; let idx = $index) {
-          @if (movie.ispopular) {
+          @if (movie.isPopular == true) {
               <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
-                  <img [src]="movie.image" class="card-img-top" alt="{{ movie.title }}" height="500px">
+                  @if(movie.image){
+                    <img [src]="'http://localhost:5120' + movie.image" class="card-img-top" alt="{{ movie.title }}" height="500px">
+                  }
                   <div class="card-body text-center">
                     <h5 class="card-title">{{ movie.title }}</h5>
-                    <p class="card-text">{{ movie.genreid }}</p>
+                    <p class="card-text">{{ movie.genreId }}</p>
                     <button class="btn btn-outline-primary mx-1" (click)="showMovieClick(movie);">View Details</button>
                     <button class="btn btn-outline-dark mx-1" (click)="buyTicketsClick(movie);">Book Tickets</button>
                   </div>
@@ -264,7 +269,6 @@
   </section>
 }
 
-
 <!-- Show specific Movie details -->
 <!-- Show specific Movie details -->
 @if (showMovie && isControlPanel == false && showAllMovies == false && buyTicket == false) {
@@ -274,12 +278,12 @@
         <div class="col mt-2">
           <h2 class="text-start mb-5">
             <button class="btn btn-light text-secondary" (click)="showMovie = false;">
-              <i class="bi bi-arrow-left-short"></i> Show Movies Today
+              <i class="bi bi-arrow-left-short"></i> Show Popular Movies
             </button>
           </h2>
         </div>
         <div class="col">
-          <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - {{selectedMovie.genreid}}</label>
+          <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - {{selectedMovie.genreId}}</label>
         </div>
        <!-- <div class="col-auto mt-4">
           <button class="btn btn-light" type="submit"><i class="bi bi-ticket-perforated"></i> Buy Tickets</button>
@@ -289,7 +293,9 @@
       <div class="row">
         <div class="col-auto mb-4">
           <div class="h-100">
-            <img src={{selectedMovie.image}} alt="" width="360px">
+            @if(selectedMovie.image){
+              <img [src]="'http://localhost:5120' + selectedMovie.image" class="card-img-top" alt="{{ selectedMovie.title }}" height="500px" style="max-width: 400px !important;">
+            }
           </div>
         </div>
         <div class="col mb-4">
@@ -302,7 +308,7 @@
         <div class="col mb-4">
           <div class="h-100">
             <div class="card-body text-center">
-              <label class="fs-4 mt-4" for="movieHeader">{{selectedMovie.actors}}</label>
+              <label class="fs-4 mt-4" for="movieHeader">{{selectedMovie}} {{selectedMovie}}</label>
             </div>
           </div>
         </div>
@@ -310,7 +316,6 @@
     </div>
   </section>
 }
-
 
 <!-- Buy Ticket from selected movie -->
 <!-- Buy Ticket from selected movie -->
@@ -350,7 +355,9 @@
         @if (showTickets == false) {
           <div class="col-auto mb-4">
             <div class="h-100">
-              <img src={{selectedMovie.image}} alt="" width="360px">
+              @if(selectedMovie.image){
+                <img [src]="'http://localhost:5120' + selectedMovie.image" class="card-img-top" alt="{{ selectedMovie.title }}" height="500px" style="max-width: 400px !important;">
+              }
             </div>
           </div>
         }
@@ -394,24 +401,18 @@
             <div> <strong>Seats Chosen:</strong> {{ selectedSeats.join(', ') }} </div>
             
             <div class="seats-container d-flex flex-wrap">
-              @for (seat of seats2; track seat) {
+              @for (seat of seats; track seat) {
                 <button
                   class="btn seat-btn m-1"
-                  [class.btn-success]="isSelected(seat)"
-                  [class.btn-light]="!isSelected(seat)"
-                  [disabled]="!isSelected(seat) && selectedSeats.length >= ticketCount"
-                  (click)="toggleSeatSelection(seat)">
-                    {{ seat }}
+                  [class.btn-success]="isSelected(seat.seatNumber)"
+                  [class.btn-light]="!isSelected(seat.seatNumber)"
+                  [disabled]="!isSelected(seat.seatNumber) && selectedSeats.length >= ticketCount"
+                  (click)="toggleSeatSelection(seat.seatNumber)">
+                    {{seat.seatRow}}{{seat.seatNumber}}
                 </button>
               }
             </div>
           </div>
-            
-          
-            <!-- Vis valgte sæder - Gammelt check, men måske skal det bruges?
-              @if (selectedSeats.length === ticketCount) {
-                
-              } -->
         }
 
         @if (showTickets == true) {
@@ -434,7 +435,6 @@
     </div>
   </section>
 }
-
 
 <!-- Admin Control panel - CRUD -->
 <!-- Admin Control panel - CRUD -->
@@ -767,7 +767,6 @@
 
   </div>
 }
-
 
 
 <!-- Footer -->

@@ -18,9 +18,9 @@ export interface Actor {
   lastname: string;
   /** @format int32 */
   age: number;
-  /** @minLength 1 */
-  countryId: string;
-  description?: string | null;
+  /** @format int32 */
+  countryId?: number;
+  country?: Country;
 }
 
 export interface Country {
@@ -84,10 +84,14 @@ export interface Movie {
   /** @format float */
   durationMinutes: number;
   trailerLink?: string | null;
+  isPopular: boolean;
   /** @minLength 1 */
   description: string;
   /** @minLength 1 */
   image: string;
+  /** @format int32 */
+  genreId?: number;
+  genre?: Genre;
 }
 
 export interface Room {
@@ -104,32 +108,33 @@ export interface Seat {
   seatRow: string;
   /** @format int32 */
   seatNumber: number;
+  /** @format int32 */
+  roomId?: number;
+  room?: Room;
 }
 
 export interface Show {
   /** @format int32 */
   id?: number;
-  /** @format int32 */
-  roomId?: number;
-  /** @format int32 */
-  movieId?: number;
   date: DateOnly;
   time: TimeOnly;
+  /** @format int32 */
+  price: number;
+  /** @format int32 */
+  roomId?: number;
+  room?: Room;
+  /** @format int32 */
+  movieId?: number;
+  movie?: Movie;
 }
 
 export interface Ticket {
   /** @format int32 */
   id?: number;
   /** @format int32 */
-  movieId?: number;
-  /** @format int32 */
-  roomId?: number;
-  /** @format int32 */
   seatId?: number;
   /** @format int32 */
   showId?: number;
-  /** @format int32 */
-  price: number;
 }
 
 export interface TimeOnly {

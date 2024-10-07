@@ -1010,7 +1010,6 @@
       "Actor": {
         "required": [
           "age",
-          "countryId",
           "firstname",
           "lastname"
         ],
@@ -1033,12 +1032,11 @@
             "format": "int32"
           },
           "countryId": {
-            "minLength": 1,
-            "type": "string"
+            "type": "integer",
+            "format": "int32"
           },
-          "description": {
-            "type": "string",
-            "nullable": true
+          "country": {
+            "$ref": "#/components/schemas/Country"
           }
         },
         "additionalProperties": false
@@ -1162,6 +1160,7 @@
           "description",
           "durationMinutes",
           "image",
+          "isPopular",
           "title"
         ],
         "type": "object",
@@ -1182,6 +1181,9 @@
             "type": "string",
             "nullable": true
           },
+          "isPopular": {
+            "type": "boolean"
+          },
           "description": {
             "minLength": 1,
             "type": "string"
@@ -1189,6 +1191,13 @@
           "image": {
             "minLength": 1,
             "type": "string"
+          },
+          "genreId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "genre": {
+            "$ref": "#/components/schemas/Genre"
           }
         },
         "additionalProperties": false
@@ -1228,6 +1237,13 @@
           "seatNumber": {
             "type": "integer",
             "format": "int32"
+          },
+          "roomId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "room": {
+            "$ref": "#/components/schemas/Room"
           }
         },
         "additionalProperties": false
@@ -1235,6 +1251,7 @@
       "Show": {
         "required": [
           "date",
+          "price",
           "time"
         ],
         "type": "object",
@@ -1243,38 +1260,37 @@
             "type": "integer",
             "format": "int32"
           },
-          "roomId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "movieId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "date": {
             "$ref": "#/components/schemas/DateOnly"
           },
           "time": {
             "$ref": "#/components/schemas/TimeOnly"
-          }
-        },
-        "additionalProperties": false
-      },
-      "Ticket": {
-        "required": [
-          "price"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
+          },
+          "price": {
             "type": "integer",
             "format": "int32"
+          },
+          "roomId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "room": {
+            "$ref": "#/components/schemas/Room"
           },
           "movieId": {
             "type": "integer",
             "format": "int32"
           },
-          "roomId": {
+          "movie": {
+            "$ref": "#/components/schemas/Movie"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Ticket": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
@@ -1283,10 +1299,6 @@
             "format": "int32"
           },
           "showId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "price": {
             "type": "integer",
             "format": "int32"
           }

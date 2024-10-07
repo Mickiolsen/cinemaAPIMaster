@@ -22,46 +22,7 @@ import { Time } from '@angular/common';
 })
 export class AppComponent {
   title = 'cinemaAPI';
-  movies2 = [
-    {
-      title: 'Movie 1',
-      genre: 'Action',
-      description: 'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsumlorem ipsum lorem ipsumlorem ipsum',
-      image: '/assets/avengersinfinity.jpg'
-    },
-    {
-      title: 'Movie 2',
-      genre: 'Drama',
-      description: 'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsumlorem ipsum lorem ipsumlorem ipsum',
-      image: '/assets/after.jpg'
-    },
-    {
-      title: 'Movie 3',
-      genre: 'Comedy',
-      description: 'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsumlorem ipsum lorem ipsumlorem ipsum',
-      image: '/assets/rivers.jpg'
-    },
-    {
-      title: 'Movie 4',
-      genre: 'Thriller',
-      description: 'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsumlorem ipsum lorem ipsumlorem ipsum',
-      image: '/assets/smile.jpg'
-    }
-  ];
-
-  shows2 = [
-    {
-      room: 'CR1',
-      date: '26/09',
-      time: '16:30'
-    },
-    {
-      room: 'CR2',
-      date: '28/09',
-      time: '21:15'
-    }
-  ];
-
+ 
   movies:Array<Movie> = [];
   genres:Array<Genre> = [];
   countries:Array<Country> = [];
@@ -133,13 +94,13 @@ export class AppComponent {
       this.isAdmin = false;
     }
 
+// Henter movies
+this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
+  this.movies = data; 
+  console.log("Movies - ", this.movies); 
+});
 
-    this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
-      this.moviesData = data; 
-      console.log("Movies - ", this.moviesData); 
-    });
-
-    // Henter genres
+  // Henter genres
 this.api.getAll<Genre>("http://localhost:5120/api/Genre").subscribe((data) => {
   this.genres = data;
   console.log("Genres - ", this.genres); // Logger genres efter de er hentet
@@ -153,14 +114,20 @@ this.api.getAll<Room>("http://localhost:5120/api/Room").subscribe((data) => {
 
 // Henter shows
 this.api.getAll<Show>("http://localhost:5120/api/Show").subscribe((data) => {
-  this.shows2 = data;
-  console.log("Shows - ", this.shows2); // Logger shows efter de er hentet
+  this.shows = data;
+  console.log("Shows - ", this.shows); // Logger shows efter de er hentet
 });
 
 // Henter seats
 this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
   this.seats = data;
   console.log("Seats - ", this.seats); // Logger seats efter de er hentet
+});
+
+// Henter Actors
+this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
+  this.actors = data;
+  console.log("Actors - ", this.actors); // Logger seats efter de er hentet
 });
 
 
@@ -208,9 +175,13 @@ this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
 
   // Toggle sædevalg
   toggleSeatSelection(seatNumber: number) {
-    if (this.selectedSeats.includes(seatNumber)) {
+    
+    if (this.selectedSeats.includes(seatNumber)) 
+    {
       this.selectedSeats = this.selectedSeats.filter(seat => seat !== seatNumber);
-    } else if (this.selectedSeats.length < this.ticketCount) {
+    } 
+    else if (this.selectedSeats.length < this.ticketCount) 
+    {
       this.selectedSeats.push(seatNumber);
     }
   }
