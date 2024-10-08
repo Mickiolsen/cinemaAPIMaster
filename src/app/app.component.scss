@@ -107,8 +107,8 @@ $text-color-light: #f8f9fa;
 
 .seats-container {
   justify-content: center;
-  max-width: auto;
-  max-height: 200px;
+  max-width: 600px;
+  max-height: auto;
 }
 
 .seat-btn {
@@ -119,4 +119,15 @@ $text-color-light: #f8f9fa;
 
 .bg-ticket {
   background-color: rgb(212, 207, 195);
+}
+
+
+.screen {
+  background-color: #ccc; /* Lys grå baggrund */
+  border-radius: 10px; /* Afrundede hjørner */
+  padding: 5px; /* Indvendig afstand */
+  width: 100%; /* Fylder bredden */
+  max-width: 600px; /* Maksimal bredde */
+  font-size: 1.2rem; /* Størrelse på tekst */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Let skygge */
 }

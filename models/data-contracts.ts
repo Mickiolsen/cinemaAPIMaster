@@ -31,31 +31,6 @@ export interface Country {
   countryCode?: string | null;
 }
 
-export interface DateOnly {
-  /** @format int32 */
-  year?: number;
-  /** @format int32 */
-  month?: number;
-  /** @format int32 */
-  day?: number;
-  dayOfWeek?: DayOfWeek;
-  /** @format int32 */
-  dayOfYear?: number;
-  /** @format int32 */
-  dayNumber?: number;
-}
-
-/** @format int32 */
-export enum DayOfWeek {
-  Value0 = 0,
-  Value1 = 1,
-  Value2 = 2,
-  Value3 = 3,
-  Value4 = 4,
-  Value5 = 5,
-  Value6 = 6,
-}
-
 export interface Employee {
   /** @format int32 */
   id?: number;
@@ -87,11 +62,11 @@ export interface Movie {
   isPopular: boolean;
   /** @minLength 1 */
   description: string;
-  /** @minLength 1 */
-  image: string;
+  image?: string | null;
+  /** @format binary */
+  imageFile?: File | null;
   /** @format int32 */
-  genreId?: number;
-  genre?: Genre;
+  genreId?: number | null;
 }
 
 export interface Room {
@@ -116,8 +91,9 @@ export interface Seat {
 export interface Show {
   /** @format int32 */
   id?: number;
-  date: DateOnly;
-  time: TimeOnly;
+  /** @format date-time */
+  date: string;
+  time: TimeSpan;
   /** @format int32 */
   price: number;
   /** @format int32 */
@@ -137,19 +113,35 @@ export interface Ticket {
   showId?: number;
 }
 
-export interface TimeOnly {
-  /** @format int32 */
-  hour?: number;
-  /** @format int32 */
-  minute?: number;
-  /** @format int32 */
-  second?: number;
-  /** @format int32 */
-  millisecond?: number;
-  /** @format int32 */
-  microsecond?: number;
-  /** @format int32 */
-  nanosecond?: number;
+export interface TimeSpan {
   /** @format int64 */
   ticks?: number;
+  /** @format int32 */
+  days?: number;
+  /** @format int32 */
+  hours?: number;
+  /** @format int32 */
+  milliseconds?: number;
+  /** @format int32 */
+  microseconds?: number;
+  /** @format int32 */
+  nanoseconds?: number;
+  /** @format int32 */
+  minutes?: number;
+  /** @format int32 */
+  seconds?: number;
+  /** @format double */
+  totalDays?: number;
+  /** @format double */
+  totalHours?: number;
+  /** @format double */
+  totalMilliseconds?: number;
+  /** @format double */
+  totalMicroseconds?: number;
+  /** @format double */
+  totalNanoseconds?: number;
+  /** @format double */
+  totalMinutes?: number;
+  /** @format double */
+  totalSeconds?: number;
 }

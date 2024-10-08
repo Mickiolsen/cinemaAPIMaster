@@ -492,19 +492,95 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Movie"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Movie"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/Movie"
+                "required": [
+                  "Description",
+                  "DurationMinutes",
+                  "IsPopular",
+                  "Title"
+                ],
+                "type": "object",
+                "properties": {
+                  "Id": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Title": {
+                    "type": "string"
+                  },
+                  "DurationMinutes": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "TrailerLink": {
+                    "type": "string"
+                  },
+                  "IsPopular": {
+                    "type": "boolean"
+                  },
+                  "Description": {
+                    "type": "string"
+                  },
+                  "Image": {
+                    "type": "string"
+                  },
+                  "ImageFile": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "Actors": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Actor"
+                    }
+                  },
+                  "Shows": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Show"
+                    }
+                  },
+                  "GenreId": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "encoding": {
+                "Id": {
+                  "style": "form"
+                },
+                "Title": {
+                  "style": "form"
+                },
+                "DurationMinutes": {
+                  "style": "form"
+                },
+                "TrailerLink": {
+                  "style": "form"
+                },
+                "IsPopular": {
+                  "style": "form"
+                },
+                "Description": {
+                  "style": "form"
+                },
+                "Image": {
+                  "style": "form"
+                },
+                "ImageFile": {
+                  "style": "form"
+                },
+                "Actors": {
+                  "style": "form"
+                },
+                "Shows": {
+                  "style": "form"
+                },
+                "GenreId": {
+                  "style": "form"
+                }
               }
             }
           }
@@ -1062,50 +1138,6 @@
         },
         "additionalProperties": false
       },
-      "DateOnly": {
-        "type": "object",
-        "properties": {
-          "year": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "month": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "day": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "dayOfWeek": {
-            "$ref": "#/components/schemas/DayOfWeek"
-          },
-          "dayOfYear": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "dayNumber": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "DayOfWeek": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
       "Employee": {
         "required": [
           "age",
@@ -1159,7 +1191,6 @@
         "required": [
           "description",
           "durationMinutes",
-          "image",
           "isPopular",
           "title"
         ],
@@ -1189,15 +1220,18 @@
             "type": "string"
           },
           "image": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
+          },
+          "imageFile": {
+            "type": "string",
+            "format": "binary",
+            "nullable": true
           },
           "genreId": {
             "type": "integer",
-            "format": "int32"
-          },
-          "genre": {
-            "$ref": "#/components/schemas/Genre"
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1261,10 +1295,11 @@
             "format": "int32"
           },
           "date": {
-            "$ref": "#/components/schemas/DateOnly"
+            "type": "string",
+            "format": "date-time"
           },
           "time": {
-            "$ref": "#/components/schemas/TimeOnly"
+            "$ref": "#/components/schemas/TimeSpan"
           },
           "price": {
             "type": "integer",
@@ -1305,40 +1340,81 @@
         },
         "additionalProperties": false
       },
-      "TimeOnly": {
+      "TimeSpan": {
         "type": "object",
         "properties": {
-          "hour": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "minute": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "second": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "millisecond": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "microsecond": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
-          "nanosecond": {
-            "type": "integer",
-            "format": "int32",
-            "readOnly": true
-          },
           "ticks": {
             "type": "integer",
-            "format": "int64",
+            "format": "int64"
+          },
+          "days": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "hours": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "milliseconds": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "microseconds": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "nanoseconds": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "minutes": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "seconds": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "totalDays": {
+            "type": "number",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalHours": {
+            "type": "number",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalMilliseconds": {
+            "type": "number",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalMicroseconds": {
+            "type": "number",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalNanoseconds": {
+            "type": "number",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalMinutes": {
+            "type": "number",
+            "format": "double",
+            "readOnly": true
+          },
+          "totalSeconds": {
+            "type": "number",
+            "format": "double",
             "readOnly": true
           }
         },

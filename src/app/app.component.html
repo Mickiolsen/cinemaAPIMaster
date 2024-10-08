@@ -255,7 +255,7 @@
                   }
                   <div class="card-body text-center">
                     <h5 class="card-title">{{ movie.title }}</h5>
-                    <p class="card-text">{{ movie.genreId }}</p>
+                    <p class="card-text">{{ getGenreName(movie.genreId) }}</p>
                     <button class="btn btn-outline-primary mx-1" (click)="showMovieClick(movie);">View Details</button>
                     <button class="btn btn-outline-dark mx-1" (click)="buyTicketsClick(movie);">Book Tickets</button>
                   </div>
@@ -283,11 +283,14 @@
           </h2>
         </div>
         <div class="col">
-          <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - {{selectedMovie.genreId}}</label>
+          <label class="fw-bold fs-3 mt-4" for="movieHeader">{{selectedMovie.title}} - {{ getGenreName(selectedMovie.genreId) }}</label>
         </div>
-       <!-- <div class="col-auto mt-4">
-          <button class="btn btn-light" type="submit"><i class="bi bi-ticket-perforated"></i> Buy Tickets</button>
-        </div> -->
+        <div class="col mt-4">
+          <button class="btn btn-light" type="submit" (click)="openYoutubeVideo(selectedMovie.trailerLink)"><i class="bi bi-play-circle"></i> Watch Trailer</button>
+        </div>
+        <div class="col-auto mt-4 text-end">
+          <label class="col-form-label" for="">Duration: {{selectedMovie.durationMinutes}} minutes</label>
+        </div>
       </div>
 
       <div class="row">
@@ -300,7 +303,7 @@
         </div>
         <div class="col mb-4">
           <div class="h-100">
-            <div class="card-body text-center">
+            <div class="card-body">
               <label class="fs-4 mt-4" for="movieHeader">{{selectedMovie.description}}</label>
             </div>
           </div>
@@ -367,24 +370,29 @@
           <div class="col-2 mb-4">
             <div class="h-100">
               <div class="card-body text-center">
-                 <!-- Dropdown here to select date and then another one to select time for movie start -->
-                  <select class="form-control my-4" name="choosedate" id="choosedate" [(ngModel)]="ticketDate">
-                    @for (show of shows; track show) {
-                      <option value="">{{show.date}}</option>
+                <!-- Dropdown for dato -->
+                <select class="form-control my-4" name="choosedate" id="choosedate" [(ngModel)]="selectedDate" (change)="onDateChange()">
+                  <option value="" disabled selected>Choose a date</option>
+                  @for (date of availableDates; track date) {
+                    <option [value]="date">{{ date }}</option>
+                  }
+                </select>
+          
+                <!-- Dropdown for tid, vises kun når dato er valgt -->
+                @if (filteredTimes.length > 0) {
+                  <select class="form-control my-4" name="choosetime" id="choosetime" [(ngModel)]="selectedTime">
+                    <option value="" disabled selected>Choose a time</option>
+                    @for (time of filteredTimes; track time) {
+                      <option [value]="time">{{ time }}</option>
                     }
                   </select>
-                  
-                  
-                  <select class="form-control" name="choosetime" id="choosetime" [(ngModel)]="ticketTime">
-                    @for (show of shows; track show) {
-                      <option value="">{{show.time}}</option>
-                    }
-                  </select>
-  
-                  <button class="btn btn-primary my-4" type="submit" (click)="chooseSeats = true;">Choose Seats</button>
+                }
+          
+                <button class="btn btn-primary my-4" type="submit" [disabled]="!selectedTime" (click)="chooseSeats = true;">Choose Seats</button>
               </div>
             </div>
           </div>
+          
         }
 
         @if (chooseSeats && showTickets == false) {  
@@ -412,22 +420,42 @@
                 </button>
               }
             </div>
+
+            <!-- Fiktiv skærm -->
+            <div class="screen text-center my-4">
+              <strong>Screen</strong>
+            </div>
+
           </div>
         }
 
         @if (showTickets == true) {
+          <div class="row justify-content-center">
             @for (ticket of tickets; track ticket) {
               <div class="col-auto text-center">
                 <div class="bg-ticket h-100 fs-5 p-4" style="border-radius: 20px; box-shadow: 1px 1px 40px 1px;">
                   <strong>Ticket</strong> <br>
                   Movie: {{ticket.ticketmovie.title}} <br>
-                  Date: {{ticket.ticketDate}} 22/10/2024 <br>
-                  Time: {{ticket.ticketTime}} 21:15 <br>
+                  Date: {{ticket.ticketdate}} <br>
+                  Time: {{ticket.tickettime}} <br>
                   Seat: {{ticket.seat}} <br>
                   Room: {{ticket.room}}
                 </div>
               </div>
             }
+          </div>
+           
+          <div class="row justify-content-center mt-5">
+            <div class="col-3">
+              <input class="form-control" type="text" name="email" id="email" [(ngModel)]="userEmail">
+            </div>
+          </div>
+
+          <div class="row justify-content-center mt-2">
+            <div class="col-2">
+              <button class="btn btn-light p-2" type="submit" (click)="sendEmail(userEmail)"><i class="bi bi-envelope-fill"></i> Send Tickets To Email</button>
+            </div>
+          </div>
 
         }
 
@@ -602,7 +630,7 @@
 
       <div class="row mb-2">
         <div class="col-3">
-          <button class="btn btn-primary" type="submit">Create Actor</button>
+          <button class="btn btn-primary" type="submit" (click)="createActor();">Create Actor</button>
         </div>
       </div>
     </div>
@@ -687,6 +715,19 @@
         </div>
         <div class="col-4">
           <input class="form-control" type="number" name="seatnumber" id="seatnumber" [(ngModel)]="seatNumber">
+        </div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-3">
+          <label class="col-form-label fw-bold" for="seatroom">Room:</label>
+        </div>
+        <div class="col-4">
+          <select class="form-select" name="seatroom" id="seatroom" [(ngModel)]="seatRoom">
+            @for (room of rooms; track room) {
+              <option value="room.id">{{room.roomNumber}}</option>
+            }
+          </select>
         </div>
       </div>
     

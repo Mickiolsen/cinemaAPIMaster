@@ -12,6 +12,7 @@ import { BlobOptions } from 'buffer';
 import { time } from 'console';
 import { elementAt, timeInterval } from 'rxjs';
 import { Time } from '@angular/common';
+import { mainModule } from 'process';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,7 @@ import { Time } from '@angular/common';
 export class AppComponent {
   title = 'cinemaAPI';
  
+  moviesWithActors:Array<any> = [];
   movies:Array<Movie> = [];
   genres:Array<Genre> = [];
   countries:Array<Country> = [];
@@ -58,6 +60,7 @@ export class AppComponent {
   countryCode:string="";
   seatNumber:number=0;
   seatRow:string="";
+  seatRoom:number=0;
   movieName:string="";
   movieDuration:number=0;
   movieTrailer:string="";
@@ -79,7 +82,14 @@ export class AppComponent {
   ticketCount: number = 0;
   selectedSeats: number[] = [];
 
-  seats2: number[] = Array(100).fill(0).map((_, index) => index + 1); // 100 sæder
+  availableDates: string[] = [];
+  filteredTimes: string[] = [];
+  selectedDate: string | null = null;
+  selectedTime: string | null = null;
+  selectedShow:any;
+
+  userEmail:string="";
+  movieGenreName:any;
 
   constructor(private modalService: NgbModal, private api:ApiServiceService) {}
 
@@ -100,16 +110,28 @@ this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
   console.log("Movies - ", this.movies); 
 });
 
-  // Henter genres
+// Henter movies med skuespillere
+//this.api.getAll<Movie>("http://localhost:5120/api/Movie/with-actors").subscribe((data) => {
+//  this.moviesWithActors = data; 
+//  console.log("MoviesWithActors - ", this.moviesWithActors); 
+//});
+
+// Henter genres
 this.api.getAll<Genre>("http://localhost:5120/api/Genre").subscribe((data) => {
   this.genres = data;
-  console.log("Genres - ", this.genres); // Logger genres efter de er hentet
+  console.log("Genres - ", this.genres); // Logger genres efter de er hentet  
 });
 
 // Henter rooms
 this.api.getAll<Room>("http://localhost:5120/api/Room").subscribe((data) => {
   this.rooms = data;
   console.log("Rooms - ", this.rooms); // Logger rooms efter de er hentet
+});
+
+// Henter Countries
+this.api.getAll<Country>("http://localhost:5120/api/Country").subscribe((data) => {
+  this.countries = data;
+  console.log("Country - ", this.countries); // Logger countries efter de er hentet
 });
 
 // Henter shows
@@ -130,7 +152,6 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
   console.log("Actors - ", this.actors); // Logger seats efter de er hentet
 });
 
-
   }
 
   showMovieClick(movie:any){
@@ -142,6 +163,8 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
   buyTicketsClick(movie:any){
     this.selectedMovie = movie;
     this.buyTicket = true;  
+
+    this.filterDatesByMovie();
   }
 
   open(content: any) {
@@ -194,17 +217,21 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
 
 
   createTicket(){
+
+    let selectedRoom = this.rooms.find(room => room.id == this.selectedShow.roomId);
+
     if(this.ticketCount >= 1 && this.selectedSeats.length >= 1){
       this.selectedSeats.forEach(element => {
         this.tickets.push({
           ticketmovie: this.selectedMovie,
-          ticketdate: this.ticketDate,
-          tickettime: this.ticketTime,
+          ticketdate: this.selectedDate,
+          tickettime: this.selectedTime,
           seat: element,
-          room: this.ticketRoom
+          room: selectedRoom?.roomNumber
         })
       });
       
+      console.log("SelectedShow roomnumber",selectedRoom);
       console.log(this.tickets);
       this.showTickets = true; 
     }
@@ -221,6 +248,11 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
 
     this.ticketDate = new Date();
     this.ticketTime = new Date();
+
+    this.availableDates = [];
+    this.filteredTimes = [];
+    this.selectedDate = null;
+    this.selectedTime = null;
   }
 
   logoutClick(){
@@ -294,8 +326,8 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
   createCountry(){
     if(this.countryName != "" && this.countryName != null){
       let params = {
-        CountryName: this.countryName,
-        CountryCode: this.countryCode
+        countryCode: this.countryCode,
+        countryName: this.countryName
       }
 
       this.api.create("http://localhost:5120/api/Country", params).subscribe((data) => {
@@ -320,10 +352,11 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
   }
 
   createSeat(){
-    if(this.seatNumber != 0 && this.seatNumber != null && this.seatRow != "" && this.seatRow != null){
+    if(this.seatNumber != 0 && this.seatNumber != null && this.seatRow != "" && this.seatRow != null && this.seatRoom != null && this.seatRoom != 0){
       let params = {
+        SeatRow:this.seatRow,
         SeatNumber:this.seatNumber,
-        SeatRow:this.seatRow
+        RoomId:this.seatRoom
       }
 
         this.api.create("http://localhost:5120/api/Seat", params).subscribe((data) => {
@@ -332,6 +365,7 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
           if(data){
             this.seatNumber = 0;
             this.seatRow = "";
+            this.seatRoom = 0;
 
             this.api.getAll<Seat>("http://localhost:5120/api/Seat").subscribe((data) => {
               this.seats = data;
@@ -349,6 +383,8 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
 
   createMovie(){
     if(this.movieName != "" && this.movieName != null && this.movieDuration != 0 && this.movieDuration != null && this.movieDescription != "" && this.movieDescription != null && this.movieImage && this.movieImage != null && this.movieGenreId != 0 && this.movieGenreId != null){
+      let ImageFile = this.movieImage;
+      
       let params = {
         Title: this.movieName,
         DurationMinutes:this.movieDuration,
@@ -356,7 +392,8 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
         IsPopular:this.moviePopular,
         Description:this.movieDescription,
         Image:this.movieImage,
-        GenreId:this.movieGenreId
+        GenreId:this.movieGenreId,
+        ImageFile:ImageFile
       }
 
         this.api.create("http://localhost:5120/api/Movie", params).subscribe((data) => {
@@ -388,11 +425,11 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
   createShow(){
     if(this.showMovieId != 0 && this.showMovieId != null && this.showRoomId != 0 && this.showRoomId != null && this.showDate && this.showTime && this.showPrice != 0 && this.showPrice != null){
       let params = {
-        RoomId:this.showRoomId,
-        MovieId:this.showMovieId,
         Date:this.showDate,
         Time:this.showTime,
-        Price:this.showPrice
+        Price:this.showPrice,
+        RoomId:this.showRoomId,
+        MovieId:this.showMovieId
       }
 
       this.api.create("http://localhost:5120/api/Show", params).subscribe((data) => {
@@ -452,5 +489,72 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
 
   }
   //Crud Create Funktioner END
+
+
+  // Filtrer datoer ud fra den valgte filmId
+  filterDatesByMovie() {
+    const movieShows = this.shows.filter(show => show.movieId === this.selectedMovie.id);
+    // Ekstrakt kun unikke datoer og formatér dem
+    this.availableDates = [...new Set(movieShows.map(show => this.formatDate(show.date)))];
+
+    this.selectedShow = movieShows[0];
+
+    console.log("selectedmovieid", this.selectedMovie.id);
+    console.log("showmovieid", this.shows.filter(show => show.movieId === this.selectedMovie.id));
+    console.log("availableDates", this.availableDates);
+  }
+
+  // Når dato ændres, filtrer tilgængelige tider
+  onDateChange() {
+    if (this.selectedDate) {
+      this.filteredTimes = this.shows
+        .filter(show => show.movieId === this.selectedMovie.id && this.formatDate(show.date) === this.selectedDate)
+        .map(show => this.formatTime(show.time)); // Formatér tidspunkterne korrekt
+    } else {
+      this.filteredTimes = [];
+    }
+  }
+
+  // Funktion til at formatere `DateTime` fra API til en dato uden tid
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0'); // Sørg for, at dag har to cifre
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() returnerer 0-indekseret måned
+    const year = date.getFullYear();
+  
+    // Returnér datoen i 'dd-MM-yyyy' format
+    return `${day}-${month}-${year}`;
+  }
+
+  // Funktion til at formatere `TimeSpan` fra API til et læsbart tidsformat
+  formatTime(timeString:any): string {
+    // TimeSpan kommer som f.eks. '14:00:00', vi vil kun have 'HH:mm'
+    return timeString.substring(0, 5);
+  }
+
+  sendEmail(mail:string){
+    if(mail){
+      alert("Ticket sent to " + mail);
+    }
+    else {
+      alert("Email field needs to be filled!" + mail);
+    }
+  }
+
+
+  // Metode for at hente genrenavn baseret på genreId
+  getGenreName(genreId:any): string {
+    const genre = this.genres.find(g => g.id === genreId);
+    return genre ? genre.genretype : 'Unknown Genre'; // Assuming 'name' is the genre name
+  }
+
+  openYoutubeVideo(url: string): void {
+    if (url) {
+      window.open(url, '_blank'); // Åbner URL'en i en ny fane
+    } else {
+      console.error('Ingen gyldig URL til videoen');
+    }
+  }
+
   
 }
