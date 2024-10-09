@@ -112,4 +112,12 @@ export class ApiServiceService {
   delete<T>(url: string):Observable<T>{
     return this.http.delete<T>(url);
   }
+
+  // Method to delete a movie by ID
+  deleteMovie(movieId: any): Observable<void> {
+    const url = `http://localhost:5120/api/Movie/${movieId}`; 
+    console.log("url", url);
+    return this.delete<void>(url); 
+  }
+
 }

@@ -25,6 +25,7 @@ export class AppComponent {
   title = 'cinemaAPI';
  
   moviesWithActors:Array<any> = [];
+  filteredMovies:Array<Movie> = [];
   movies:Array<Movie> = [];
   genres:Array<Genre> = [];
   countries:Array<Country> = [];
@@ -49,6 +50,7 @@ export class AppComponent {
 
   isAdmin:boolean = false;
   isControlPanel: boolean = false;
+  deleteMovies:boolean = false;
 
   buyTicket:boolean = false;
   chooseSeats:boolean = false;
@@ -106,7 +108,8 @@ export class AppComponent {
 
 // Henter movies
 this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
-  this.movies = data; 
+  this.movies = data;
+  this.filteredMovies = data; 
   console.log("Movies - ", this.movies); 
 });
 
@@ -216,28 +219,30 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
   // Sæde valg funktioner END
 
 
-  createTicket(){
-
+  createTicket() {
     let selectedRoom = this.rooms.find(room => room.id == this.selectedShow.roomId);
-
-    if(this.ticketCount >= 1 && this.selectedSeats.length >= 1){
-      this.selectedSeats.forEach(element => {
+  
+    if (this.ticketCount >= 1 && this.selectedSeats.length >= 1) {
+      this.selectedSeats.forEach(seatNumber => {
+        // Find the seat object based on the seat number
+        let selectedSeat = this.seats.find(seat => seat.seatNumber === seatNumber);
+        
         this.tickets.push({
           ticketmovie: this.selectedMovie,
           ticketdate: this.selectedDate,
           tickettime: this.selectedTime,
-          seat: element,
+          seatNumber: seatNumber, // This remains the seat number
+          seatRow: selectedSeat ? selectedSeat.seatRow : '', // Get the seat row
           room: selectedRoom?.roomNumber
-        })
+        });
       });
-      
-      console.log("SelectedShow roomnumber",selectedRoom);
+  
+      console.log("SelectedShow roomnumber", selectedRoom);
       console.log(this.tickets);
       this.showTickets = true; 
     }
-    
   }
-
+  
   resetAll(){
     this.buyTicket = false;
     this.updateTicketCount(0);
@@ -381,46 +386,94 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
       }
   }
 
-  createMovie(){
-    if(this.movieName != "" && this.movieName != null && this.movieDuration != 0 && this.movieDuration != null && this.movieDescription != "" && this.movieDescription != null && this.movieImage && this.movieImage != null && this.movieGenreId != 0 && this.movieGenreId != null){
-      let ImageFile = this.movieImage;
-      
-      let params = {
-        Title: this.movieName,
-        DurationMinutes:this.movieDuration,
-        TrailerLink:this.movieTrailer,
-        IsPopular:this.moviePopular,
-        Description:this.movieDescription,
-        Image:this.movieImage,
-        GenreId:this.movieGenreId,
-        ImageFile:ImageFile
-      }
+ // createMovie(){
+ //   if(this.movieName != "" && this.movieName != null && this.movieDuration != 0 && this.movieDuration != null && this.movieDescription != "" && this.movieDescription != null && this.movieImage && this.movieImage != null && this.movieGenreId != 0 && this.movieGenreId != null){
+ //     let ImageFile = null;
+ //     
+ //     let params = {
+ //       Title: this.movieName,
+ //       DurationMinutes:this.movieDuration,
+ //       TrailerLink:this.movieTrailer,
+ //       IsPopular:this.moviePopular,
+ //       Description:this.movieDescription,
+ //       Image:this.movieImage,
+ //       GenreId:this.movieGenreId,
+ //       ImageFile:ImageFile
+ //     }
+//
+ //       this.api.create("http://localhost:5120/api/Movie", params).subscribe((data) => {
+ //         console.log(data);
+//
+ //         if(data){
+ //           this.movieName = "";
+ //           this.movieDuration = 0;
+ //           this.movieTrailer = "";
+ //           this.moviePopular = false;
+ //           this.movieDescription = "";
+ //           this.movieImage = "";
+ //           this.movieGenreId = 0;
+//
+ //           this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
+ //             this.movies = data;
+ //             console.log("Movies - ", this.movies);
+ //           });
+//
+ //           alert("New Movie is created");
+ //           }
+ //       });
+ //     }
+ //     else{
+ //       alert("Failed to create Movie!");
+ //    }
+ // }
 
-        this.api.create("http://localhost:5120/api/Movie", params).subscribe((data) => {
-          console.log(data);
-
-          if(data){
-            this.movieName = "";
-            this.movieDuration = 0;
-            this.movieTrailer = "";
-            this.moviePopular = false;
-            this.movieDescription = "";
-            this.movieImage = "";
-            this.movieGenreId = 0;
-
-            this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
-              this.movies = data;
-              console.log("Movies - ", this.movies);
-            });
-
-            alert("New Movie is created");
-            }
-        });
-      }
-      else{
-        alert("Failed to create Movie!");
-     }
+  createMovie() {
+    if (this.movieName != "" && this.movieName != null && 
+        this.movieDuration != 0 && this.movieDuration != null && 
+        this.movieDescription != "" && this.movieDescription != null && 
+        this.movieImage && this.movieImage != null && 
+        this.movieGenreId != 0 && this.movieGenreId != null) {
+          
+          let Imagepath = "";
+      // Opret FormData til at håndtere både filmdata og billede
+      const formData = new FormData();
+      formData.append("Title", this.movieName);
+      formData.append("DurationMinutes", this.movieDuration.toString());
+      formData.append("TrailerLink", this.movieTrailer);
+      formData.append("IsPopular", this.moviePopular.toString());
+      formData.append("Description", this.movieDescription);
+      formData.append("GenreId", this.movieGenreId.toString());
+      //formData.append("Image",  Imagepath);
+  
+      // Vedhæft billedfilen
+      formData.append("ImageFile", this.movieImage); // Brug det korrekte input for billedet
+  
+      this.api.create("http://localhost:5120/api/Movie", formData).subscribe((data) => {
+        console.log(data);
+  
+        if (data) {
+          this.movieName = "";
+          this.movieDuration = 0;
+          this.movieTrailer = "";
+          this.moviePopular = false;
+          this.movieDescription = "";
+          this.movieImage = null; // Reset billedet
+          this.movieGenreId = 0;
+  
+          // Opdater filmene efter oprettelse
+          this.api.getAll<Movie>("http://localhost:5120/api/Movie").subscribe((data) => {
+            this.movies = data;
+            console.log("Movies - ", this.movies);
+          });
+  
+          alert("New Movie is created");
+        }
+      });
+    } else {
+      alert("Failed to create Movie!");
+    }
   }
+  
 
   createShow(){
     if(this.showMovieId != 0 && this.showMovieId != null && this.showRoomId != 0 && this.showRoomId != null && this.showDate && this.showTime && this.showPrice != 0 && this.showPrice != null){
@@ -490,6 +543,28 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
   }
   //Crud Create Funktioner END
 
+  deleteMovie(movieId: any) {
+    if (confirm("Are you sure you want to delete this movie?")) {
+      this.api.deleteMovie(movieId).subscribe({
+        next: () => {
+          // Remove the movie from the list locally
+          this.movies = this.movies.filter(movie => movie.id !== movieId);
+          alert("Movie deleted successfully!");
+        },
+        error: (err) => {
+          console.log('Error deleting movie:', err);
+          alert("Failed to delete movie. Please try again.");
+        }
+      });
+    }
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.movieImage = file; // Gemmer den valgte fil
+    }
+  }
 
   // Filtrer datoer ud fra den valgte filmId
   filterDatesByMovie() {
@@ -548,11 +623,24 @@ this.api.getAll<Actor>("http://localhost:5120/api/Actor").subscribe((data) => {
     return genre ? genre.genretype : 'Unknown Genre'; // Assuming 'name' is the genre name
   }
 
-  openYoutubeVideo(url: string): void {
+  openYoutubeVideo(url: string) {
     if (url) {
       window.open(url, '_blank'); // Åbner URL'en i en ny fane
     } else {
       console.error('Ingen gyldig URL til videoen');
+    }
+  }
+
+  onGenreChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement; // Cast to HTMLSelectElement
+    const genreId = selectElement.value; // Get the selected value from the select element
+  
+    console.log("genreId:", genreId); // Debugging line
+  
+    if (genreId) {
+      this.filteredMovies = this.movies.filter(movie => movie.genreId === +genreId);
+    } else {
+      this.filteredMovies = this.movies; // Show all movies if no genre is selected
     }
   }
 

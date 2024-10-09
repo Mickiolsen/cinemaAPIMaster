@@ -121,7 +121,6 @@ $text-color-light: #f8f9fa;
   background-color: rgb(212, 207, 195);
 }
 
-
 .screen {
   background-color: #ccc; /* Lys grå baggrund */
   border-radius: 10px; /* Afrundede hjørner */
@@ -130,4 +129,12 @@ $text-color-light: #f8f9fa;
   max-width: 600px; /* Maksimal bredde */
   font-size: 1.2rem; /* Størrelse på tekst */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Let skygge */
+}
+
+.deleteCard {
+  background-color: #eeeeee;
+  border-radius: 15px;
+  margin: 10px;
+  padding: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
